@@ -1,5 +1,5 @@
-#ifndef CLIENTDATA_H
-#define CLIENTDATA_H
+#ifndef CLIENTDATA_HPP
+#define CLIENTDATA_HPP
 #include <string>
 
 class ClientData{

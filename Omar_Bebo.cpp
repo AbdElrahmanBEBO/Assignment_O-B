@@ -2,9 +2,11 @@
 #include <fstream>
 #include <iomanip>
 #include <cstdlib>
-#include "ClientData.h" // ClientData class definition
+#include "ClientData.cpp" // ClientData class definition
 
 using namespace std;
+
+    enum Choices { PRINT = 1, UPDATE, NEW, DELETE, END };
 
     int enterChoice();
     void createTextFile( fstream& );
@@ -14,70 +16,66 @@ using namespace std;
     void outputLine( ostream&, const ClientData & );
     int getAccount( const char * const );
 
-    enum Choices { PRINT = 1, UPDATE, NEW, DELETE, END };
 
 
                     //----------------------------------------Main----------------------------------------//
 int main(){
-
-    // open file for reading and writing
-    fstream inOutCredit( "credit.dat", ios::in | ios::out | ios::binary );
-    // exit program if fstream cannot open file
-    if (!inOutCredit){
-    cerr << "File could not be opened." << endl;
-    exit ( EXIT_FAILURE );
-    }
-
-    int choice; // store user choice
-
+     // open file for reading and writing
+     fstream inOutCredit( "credit.dat", ios::in | ios::out | ios::binary );
+     // exit program if fstream cannot open file
+     if (!inOutCredit){
+     cerr << "File could not be opened." << endl;
+     exit ( EXIT_FAILURE );
+     }
+    int choice  = enterChoice();
     // enable user to specify action
-    while (choice = enterChoice() != END ){
-        switch ( choice ){
-        case PRINT:     createTextFile( inOutCredit );
-        break;
-        case UPDATE:    updateRecord( inOutCredit );
-        break;
-        case NEW:       newRecord( inOutCredit );
-        break;
-        case DELETE:    deleteRecord( inOutCredit );
-        break;
-        default:        cerr << "Incorrect choice" << endl;
-        break;
-        }
-        inOutCredit.clear();
-    }
- }
+     while (choice != END ){
+         switch ( choice ){
+         case PRINT:     createTextFile( inOutCredit );
+         break;
+         case UPDATE:    updateRecord( inOutCredit );
+         break;
+         case NEW:       newRecord( inOutCredit );
+         break;
+         case DELETE:    deleteRecord( inOutCredit );
+         break;
+         default:        cerr << "Incorrect choice" << endl;
+         break;
+         }
+         inOutCredit.clear();
+     }
+}
                     //----------------------------------------enterChoice----------------------------------------//
- int enterChoice(){
+int enterChoice(){
 
     // display available options
     cout << "\nEnter your choice" << endl
-        << "1 - store a formatted text file of accounts" << endl << " called \"print.txt\" for printing" << endl
+        << "1 - store a formatted text file of accounts" << "_ called \"print.txt\" for printing" << endl
         << "2 - update an account" << endl
         << "3 - add a new account" << endl
         << "4 - delete an account" << endl
         << "5 - end program\n? ";
 
     int menuChoice;
- 
+
     cin >> menuChoice;
     return menuChoice;
- }
+}
                     //----------------------------------------createTextFile----------------------------------------//
 void createTextFile(fstream &readFromFile){
-    
+
     //create text file
     ofstream outPrintFile( "print.txt", ios::out );
-    
+
     // exit program if ofstream cannot create file
     if (!outPrintFile){
     cerr << "File could not be created." << endl;
     exit( EXIT_FAILURE );
-    } 
+    }
 
     // output column heads
-    outPrintFile << left << setw( 10 ) << "Account" << 
-                            setw( 16 )<< "Last Name" << 
+    outPrintFile << left << setw( 10 ) << "Account" <<
+                            setw( 16 )<< "Last Name" <<
                             setw( 11 ) << "First Name" << right <<
                             setw( 10 ) << "Balance" << endl;
 
@@ -103,10 +101,10 @@ void createTextFile(fstream &readFromFile){
 }
                     //----------------------------------------updateRecord----------------------------------------//
 void updateRecord( fstream &updateFile ){
-    
+
     // obtain number of account to update
     int accountNumber = getAccount( "Enter account to update" );
-    
+
     // move file-position pointer to correct record in file
     updateFile.seekg( ( accountNumber - 1 ) * sizeof( ClientData ) );
 
@@ -118,12 +116,12 @@ void updateRecord( fstream &updateFile ){
     // update record
     if ( client.getAccountNumber() != 0 ){
         outputLine( cout, client );
-        
+
         // request user to specify transaction
         cout << "\nEnter charge (+) or payment (-): ";
         double transaction; // charge or payment
         cin >> transaction;
-        
+
         // update record balance
         double oldBalance = client.getBalance();
         client.setBalance( oldBalance + transaction );
@@ -141,10 +139,10 @@ void updateRecord( fstream &updateFile ){
 }
                     //----------------------------------------newRecord----------------------------------------//
 void newRecord( fstream &insertInFile ){
-    
+
     // obtain number of account to create
     int accountNumber = getAccount( "Enter new account number" );
-   
+
     // move file-position pointer to correct record in file
     insertInFile.seekg( ( accountNumber - 1 ) * sizeof( ClientData ) );
 
@@ -173,17 +171,17 @@ void newRecord( fstream &insertInFile ){
 
         // move file-position pointer to correct record in file
         insertInFile.seekp( ( accountNumber - 1 ) * sizeof( ClientData ) );
-    
+
         // insert record in file
         insertInFile.write( reinterpret_cast< const char * >( &client ),
         sizeof( ClientData ) );
     }
     else // display error if account already exists
     cerr << "Account #" << accountNumber << " already contains information." << endl;
- }
+}
                     //----------------------------------------deleteRecord----------------------------------------//
- void deleteRecord( fstream &deleteFromFile ){
-    
+void deleteRecord( fstream &deleteFromFile ){
+
     // obtain number of account to delete
     int accountNumber = getAccount( "Enter account to delete" );
 
@@ -211,9 +209,9 @@ void newRecord( fstream &insertInFile ){
     }
     else // display error if record does not exist
     cerr << "Account #" << accountNumber << " is empty.\n";
- }
+}
                     //----------------------------------------outputLine----------------------------------------//
- void outputLine( ostream &output, const ClientData &record ){
+void outputLine( ostream &output, const ClientData &record ){
     output << left << setw( 10 ) << record.getAccountNumber()
                    << setw( 16 ) << record.getLastName()
                    << setw( 11 ) << record.getFirstName()
@@ -229,6 +227,6 @@ int getAccount( const char * const prompt ){
     cout << prompt << " (1 - 100): ";
     cin >> accountNumber;
     } while ( accountNumber < 1 || accountNumber > 100 );
-    
+
     return accountNumber;
 }

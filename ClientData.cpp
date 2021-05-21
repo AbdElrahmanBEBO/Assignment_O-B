@@ -1,13 +1,13 @@
 #include <string>
-#include "ClientData.h"
+#include "ClientData.hpp"
 
 using namespace std;
 
 // default ClientData constructor
 ClientData::ClientData( int accountNumberValue, const string &lastName,const string &firstName, double balanceValue)
 : accountNumber( accountNumberValue ), balance( balanceValue ){
-    setLastName( lastNameValue );
-    setFirstName( firstNameValue );
+    setLastName( lastName );
+    setFirstName( firstName );
 } 
 
 // get account-number value

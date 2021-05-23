@@ -6,43 +6,49 @@
 
 using namespace std;
 
-    enum Choices { PRINT = 1, UPDATE, NEW, DELETE, END };
+int enterChoice();
+void createTextFile(fstream&);
+void updateRecord(fstream&);
+void newRecord(fstream&);
+void deleteRecord(fstream&);
+void BackUp();
+void Restore();
+void outputLine( ostream&, const ClientData & );
+int getAccount( const char * const );
 
-    int enterChoice();
-    void createTextFile( fstream& );
-    void updateRecord( fstream& );
-    void newRecord( fstream& );
-    void deleteRecord( fstream& );
-    void outputLine( ostream&, const ClientData & );
-    int getAccount( const char * const );
-
+enum Choices { PRINT = 1, UPDATE, NEW, DELETE,BACKUP,RESTORE,END };
 
 
                     //----------------------------------------Main----------------------------------------//
 int main(){
-     // open file for reading and writing
-     fstream inOutCredit( "credit.dat", ios::in | ios::out | ios::binary );
-     // exit program if fstream cannot open file
-     if (!inOutCredit){
-     cerr << "File could not be opened." << endl;
-     exit ( EXIT_FAILURE );
-     }
-    int choice  = enterChoice();
+
+    // open file for reading and writing
+    fstream inOutCredit( "credit.dat", ios::in | ios::out | ios::binary );
+    // exit program if fstream cannot open file
+    if (!inOutCredit){
+    cerr << "File could not be opened." << endl;
+    exit ( EXIT_FAILURE );
+    }
+
+    int choice;
     // enable user to specify action
-     while (choice != END ){
-         switch ( choice ){
-         case PRINT:     createTextFile( inOutCredit );
-         break;
-         case UPDATE:    updateRecord( inOutCredit );
-         break;
-         case NEW:       newRecord( inOutCredit );
-         break;
-         case DELETE:    deleteRecord( inOutCredit );
-         break;
-         default:        cerr << "Incorrect choice" << endl;
-         break;
-         }
-         inOutCredit.clear();
+     while ((choice=enterChoice()) != END ){
+        switch ( choice ){
+        case PRINT:     createTextFile( inOutCredit );
+        break;
+        case UPDATE:    updateRecord( inOutCredit );
+        break;
+        case NEW:       newRecord( inOutCredit );
+        break;
+        case DELETE:    deleteRecord( inOutCredit );
+        break;
+        case BACKUP:    BackUp();
+        break;
+        case RESTORE:   Restore();
+        break;                
+        default:        cerr << "Incorrect choice" << endl;
+        break;
+        }         inOutCredit.clear();
      }
 }
                     //----------------------------------------enterChoice----------------------------------------//
@@ -54,7 +60,10 @@ int enterChoice(){
         << "2 - update an account" << endl
         << "3 - add a new account" << endl
         << "4 - delete an account" << endl
-        << "5 - end program\n? ";
+        << "5 - Backup Data"       << endl
+        << "6 - Restore Data"      << endl
+        << "7 - end program\n? ";
+
 
     int menuChoice;
 
@@ -148,8 +157,7 @@ void newRecord( fstream &insertInFile ){
 
     // read record from file
     ClientData client;
-    insertInFile.read( reinterpret_cast< char * >( &client ),
-    sizeof( ClientData ) );
+    insertInFile.read( reinterpret_cast< char * >( &client ),sizeof( ClientData ) );
 
     // create record, if record does not previously exist
     if ( client.getAccountNumber() == 0 ){
@@ -177,7 +185,7 @@ void newRecord( fstream &insertInFile ){
         sizeof( ClientData ) );
     }
     else // display error if account already exists
-    cerr << "Account #" << accountNumber << " already contains information." << endl;
+        cerr << "Account #" << accountNumber << " already contains information." << endl;
 }
                     //----------------------------------------deleteRecord----------------------------------------//
 void deleteRecord( fstream &deleteFromFile ){
@@ -209,6 +217,35 @@ void deleteRecord( fstream &deleteFromFile ){
     }
     else // display error if record does not exist
     cerr << "Account #" << accountNumber << " is empty.\n";
+}
+                    //----------------------------------------'Backup Data'----------------------------------------//
+void BackUp(){
+
+    ofstream first("Backup.dat",ios::out | ios::binary);
+    if(!first){
+        cerr << "file couldnd not be opened." << endl;
+        exit(EXIT_FAILURE);
+    }
+    ifstream second("credit.dat",ios::in | ios::binary);
+    if(!second){
+        cerr << "file couldnd not be opened." << endl;
+        exit(EXIT_FAILURE);
+    }
+    copy(istreambuf_iterator<char>(second),istreambuf_iterator<char>(),ostreambuf_iterator<char>(first));
+}
+                    //----------------------------------------'Restore Data'----------------------------------------//
+void Restore(){
+    ofstream first("credit.dat",ios::out | ios::binary);
+    if(!first){
+        cerr << "file couldnd not be opened." << endl;
+        exit(EXIT_FAILURE);
+    }
+    ifstream second("Backup.dat",ios::in | ios::binary);
+    if(!second){
+        cerr << "file couldnd not be opened." << endl;
+        exit(EXIT_FAILURE);
+    }
+    copy(istreambuf_iterator<char>(second),istreambuf_iterator<char>(),ostreambuf_iterator<char>(first));
 }
                     //----------------------------------------outputLine----------------------------------------//
 void outputLine( ostream &output, const ClientData &record ){

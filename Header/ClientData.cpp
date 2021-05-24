@@ -5,9 +5,10 @@ using namespace std;
 
 // default ClientData constructor
 ClientData::ClientData( int accountNumberValue, const string &lastName,const string &firstName, double balanceValue)
-: accountNumber( accountNumberValue ), balance( balanceValue ){
+    : accountNumber( accountNumberValue ), balance( balanceValue ){
     setLastName( lastName );
     setFirstName( firstName );
+
 } 
 
 // get account-number value
@@ -56,3 +57,12 @@ double ClientData::getBalance() const{
 void ClientData::setBalance( double balanceValue ){
     balance = balanceValue;
 }
+// // get brance ID
+// int ClientData::getID() const{
+//     return ID;
+// } 
+
+// // set branch ID
+// void ClientData::setID( int idValue ){
+//     ID = idValue;
+// }

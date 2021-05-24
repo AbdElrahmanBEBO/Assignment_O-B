@@ -2,12 +2,14 @@
 #include <fstream>
 #include <iomanip>
 #include <cstdlib>
-#include "ClientData.cpp" // ClientData class definition
+#include "Header/ClientData.cpp" // ClientData class definition
 
 using namespace std;
 
 int enterChoice();
 void createTextFile(fstream&);
+void createIndexFile();
+void createTextFileForIndexFile();
 void updateRecord(fstream&);
 void newRecord(fstream&);
 void deleteRecord(fstream&);
@@ -16,7 +18,7 @@ void Restore();
 void outputLine( ostream&, const ClientData & );
 int getAccount( const char * const );
 
-enum Choices { PRINT = 1, UPDATE, NEW, DELETE,BACKUP,RESTORE,END };
+enum Choices { PRINT = 1, UPDATE, NEW, DELETE, BACKUP, RESTORE, INDEX, TFforIF, END };
 
 
                     //----------------------------------------Main----------------------------------------//
@@ -45,10 +47,15 @@ int main(){
         case BACKUP:    BackUp();
         break;
         case RESTORE:   Restore();
-        break;                
+        break;     
+        case INDEX:     createIndexFile();
+        break; 
+        case TFforIF:   createTextFileForIndexFile();
+        break;               
         default:        cerr << "Incorrect choice" << endl;
         break;
-        }         inOutCredit.clear();
+        }         
+        inOutCredit.clear();
      }
 }
                     //----------------------------------------enterChoice----------------------------------------//
@@ -62,7 +69,9 @@ int enterChoice(){
         << "4 - delete an account" << endl
         << "5 - Backup Data"       << endl
         << "6 - Restore Data"      << endl
-        << "7 - end program\n? ";
+        << "7 - Create Index file" << endl
+        << "8 - Create text files for Index Files" << endl
+        << "9 - end program\n? ";
 
 
     int menuChoice;
@@ -72,7 +81,6 @@ int enterChoice(){
 }
                     //----------------------------------------createTextFile----------------------------------------//
 void createTextFile(fstream &readFromFile){
-
     //create text file
     ofstream outPrintFile( "print.txt", ios::out );
 
@@ -84,7 +92,7 @@ void createTextFile(fstream &readFromFile){
 
     // output column heads
     outPrintFile << left << setw( 10 ) << "Account" <<
-                            setw( 16 )<< "Last Name" <<
+                            setw( 16 ) << "Last Name" <<
                             setw( 11 ) << "First Name" << right <<
                             setw( 10 ) << "Balance" << endl;
 
@@ -93,9 +101,7 @@ void createTextFile(fstream &readFromFile){
 
     // read first record from record file
     ClientData client;
-    readFromFile.read( reinterpret_cast< char * >( &client ),
-    sizeof( ClientData ) );
-
+    readFromFile.read( reinterpret_cast< char * >( &client ),sizeof( ClientData ) );
 
     // copy all records from record file into text file
     while (!readFromFile.eof()){
@@ -107,6 +113,35 @@ void createTextFile(fstream &readFromFile){
         readFromFile.read( reinterpret_cast< char * >( &client ),
         sizeof( ClientData ) );
     } // end while
+}
+                    //----------------------------------------createIndexFile----------------------------------------//
+void createIndexFile(){
+    ////////////////////////////////
+    ofstream primary("primary_index.dat",ios::out | ios::binary);
+    if (!primary){
+        cerr << "file couldnd not be opened." << endl;
+        exit(EXIT_FAILURE);
+    }
+    ofstream secondary("secondary_index.dat",ios::out | ios::binary);
+    if (!secondary){
+        cerr << "file couldnd not be opened." << endl;
+        exit(EXIT_FAILURE);
+    }
+}
+                    //----------------------------------------createTextFileForIndexFile----------------------------------------//
+void createTextFileForIndexFile(){
+    ////////////////////////////////
+    ofstream primary("primary_index.txt",ios::out | ios::binary);
+    if (!primary){
+        cerr << "file couldnd not be opened." << endl;
+        exit(EXIT_FAILURE);
+    }
+    ofstream secondary("secondary_index.txt",ios::out | ios::binary);
+    if (!secondary){
+        cerr << "file couldnd not be opened." << endl;
+        exit(EXIT_FAILURE);
+    }
+
 }
                     //----------------------------------------updateRecord----------------------------------------//
 void updateRecord( fstream &updateFile ){
@@ -223,26 +258,28 @@ void BackUp(){
 
     ofstream first("Backup.dat",ios::out | ios::binary);
     if(!first){
-        cerr << "file couldnd not be opened." << endl;
+        cerr << "backup_backup file couldnd not be opened." << endl;
         exit(EXIT_FAILURE);
     }
     ifstream second("credit.dat",ios::in | ios::binary);
     if(!second){
-        cerr << "file couldnd not be opened." << endl;
+        cerr << "backup_credit file couldnd not be opened." << endl;
         exit(EXIT_FAILURE);
     }
     copy(istreambuf_iterator<char>(second),istreambuf_iterator<char>(),ostreambuf_iterator<char>(first));
+    
+
 }
                     //----------------------------------------'Restore Data'----------------------------------------//
 void Restore(){
     ofstream first("credit.dat",ios::out | ios::binary);
     if(!first){
-        cerr << "file couldnd not be opened." << endl;
+        cerr << "restore_credit file couldnd not be opened." << endl;
         exit(EXIT_FAILURE);
     }
     ifstream second("Backup.dat",ios::in | ios::binary);
     if(!second){
-        cerr << "file couldnd not be opened." << endl;
+        cerr << "restore_backup file couldnd not be opened." << endl;
         exit(EXIT_FAILURE);
     }
     copy(istreambuf_iterator<char>(second),istreambuf_iterator<char>(),ostreambuf_iterator<char>(first));

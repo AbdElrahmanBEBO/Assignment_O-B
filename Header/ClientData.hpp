@@ -1,4 +1,4 @@
-#ifndef CLIENTDATA_HPP
+    #ifndef CLIENTDATA_HPP
 #define CLIENTDATA_HPP
 #include <string>
 
@@ -23,9 +23,14 @@ class ClientData{
         // accessor functions for balance
         void setBalance( double );
         double getBalance() const;
+
+        //branch ID
+        // void setID( int );
+        // int getID() const;
         
     private:
         int accountNumber;
+        //int ID;
         char lastName[ 15 ];
         char firstName[ 10 ];
         double balance;
